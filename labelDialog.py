@@ -49,11 +49,20 @@ class LabelDialog(QDialog):
             button = QPushButton(label)
             button.clicked.connect(lambda state, s = label : self.edit.setText(s))
             label_layout.addWidget(button)
+        
+        # "blurred" buttons
+        blurred_label_layout = QHBoxLayout()
+        for label in predefined_labels:
+            label = label + "_blurred"
+            button = QPushButton(label)
+            button.clicked.connect(lambda state, s = label : self.edit.setText(s))
+            blurred_label_layout.addWidget(button)
 
 
 
         layout = QVBoxLayout()
         layout.addLayout(label_layout)
+        layout.addLayout(blurred_label_layout)
         layout.addWidget(self.edit)
         
         self.buttonBox = bb = BB(BB.Ok | BB.Cancel, Qt.Horizontal, self)
