@@ -162,6 +162,10 @@ class MainWindow(QMainWindow, WindowMixin):
                 enabled=False)
         close = action('&Close', self.closeFile,
                 'Ctrl+W', 'close', u'Close current file')
+
+        nextFile = action('&Next', self.openNextFile,
+                'Ctrl+F', 'Next', u'Open next image or label file')
+
         color1 = action('Polygon &Line Color', self.chooseColor1,
                 'Ctrl+L', 'color_line', u'Choose polygon line color')
         color2 = action('Polygon &Fill Color', self.chooseColor2,
@@ -291,7 +295,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
         self.tools = self.toolbar('Tools')
         self.actions.beginner = (
-            open, save, None, create, copy, delete, None,
+            open, save, nextFile, None, create, copy, delete, None,
             zoomIn, zoom, zoomOut, fitWindow, fitWidth)
 
         self.actions.advanced = (
@@ -758,6 +762,36 @@ class MainWindow(QMainWindow, WindowMixin):
         if filename:
             self.loadFile(filename)
 
+    def openNextFile(self, _value=False):
+        if not self.mayContinue():
+            return
+
+        # If no current file, use standard openFile dialog
+        if (not self.filename):
+            return self.openFile(_value);
+        
+
+        fname = os.path.basename(unicode(self.filename))
+        path = os.path.dirname(unicode(self.filename))
+        ext = os.path.splitext(fname)[1]
+
+        # List all files with the same extension
+        all_files = [f for f in os.listdir(path) if 
+                     os.path.isfile(os.path.join(path, f)) and 
+                     os.path.splitext(f)[1] == ext]
+        next_file_idx = -1
+        if (all_files.count(fname) > 0):
+            idx = all_files.index(fname)
+            if ((idx + 2) < len(all_files)) :
+                next_file_idx = idx + 1
+        if (next_file_idx < 0):
+            return
+        
+        filename = os.path.join(path, all_files[next_file_idx])
+        if filename:
+            self.loadFile(filename)
+
+
     def saveFile(self, _value=False):
         assert not self.image.isNull(), "cannot save empty image"
         if self.hasLabels():
@@ -775,7 +809,7 @@ class MainWindow(QMainWindow, WindowMixin):
         dlg = QFileDialog(self, caption, self.currentPath(), filters)
 
         default_ext = LabelFile.suffix;
-        default_filename = os.path.splitext(os.path.basename(self.filename))[0] if self.filename else ''
+        default_filename = os.path.basename(self.filename) if self.filename else ''
         dlg.selectFile(default_filename + default_ext)
 
         #dlg.setDefaultSuffix(LabelFile.suffix[1:])
