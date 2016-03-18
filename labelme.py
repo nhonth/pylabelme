@@ -655,24 +655,35 @@ class MainWindow(QMainWindow, WindowMixin):
             filename = self.settings['filename']
         filename = unicode(filename)
         if QFile.exists(filename):
+
+            # Determine if there is an existing label file
+            labelFile = None
             if LabelFile.isLabelFile(filename):
+                labelFile = filename
+            elif QFile.exists(filename + ".lif") and LabelFile.isLabelFile(filename + ".lif"):
+                labelFile = filename + ".lif"
+
+            if (labelFile):
                 try:
-                    self.labelFile = LabelFile(filename)
+                    self.labelFile = LabelFile(labelFile)
                 except LabelFileError, e:
                     self.errorMessage(u'Error opening file',
                             (u"<p><b>%s</b></p>"
-                             u"<p>Make sure <i>%s</i> is a valid label file.")\
-                            % (e, filename))
-                    self.status("Error reading %s" % filename)
+                                u"<p>Make sure <i>%s</i> is a valid label file.")\
+                            % (e, labelFile))
+                    self.status("Error reading %s" % labelFile)
                     return False
                 self.imageData = self.labelFile.imageData
                 self.lineColor = QColor(*self.labelFile.lineColor)
                 self.fillColor = QColor(*self.labelFile.fillColor)
+                
             else:
                 # Load image:
                 # read data first and store for saving into label file.
                 self.imageData = read(filename, None)
                 self.labelFile = None
+
+
             image = QImage.fromData(self.imageData)
             if image.isNull():
                 self.errorMessage(u'Error opening file',
