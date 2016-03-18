@@ -773,10 +773,17 @@ class MainWindow(QMainWindow, WindowMixin):
         caption = '%s - Choose File' % __appname__
         filters = 'Label files (*%s)' % LabelFile.suffix
         dlg = QFileDialog(self, caption, self.currentPath(), filters)
-        dlg.setDefaultSuffix(LabelFile.suffix[1:])
+
+        default_ext = LabelFile.suffix;
+        default_filename = os.path.splitext(os.path.basename(self.filename))[0] if self.filename else ''
+        dlg.selectFile(default_filename + default_ext)
+
+        #dlg.setDefaultSuffix(LabelFile.suffix[1:])
         dlg.setAcceptMode(QFileDialog.AcceptSave)
         dlg.setConfirmOverwrite(True)
         dlg.setOption(QFileDialog.DontUseNativeDialog, False)
+        
+
         if dlg.exec_():
             return dlg.selectedFiles()[0]
         return ''
