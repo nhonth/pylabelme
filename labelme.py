@@ -163,8 +163,11 @@ class MainWindow(QMainWindow, WindowMixin):
         close = action('&Close', self.closeFile,
                 'Ctrl+W', 'close', u'Close current file')
 
-        nextFile = action('&Next', self.openNextFile,
+        nextFile = action('&Next', lambda _value, increment = 1 : self.openNextFile(_value, increment),
                 'Ctrl+F', 'Next', u'Open next image or label file')
+
+        prevFile = action('&Prev', lambda _value, increment = -1 : self.openNextFile(_value, increment),
+                'Ctrl+P', 'Prev', u'Open previous image or label file')
 
         color1 = action('Polygon &Line Color', self.chooseColor1,
                 'Ctrl+L', 'color_line', u'Choose polygon line color')
@@ -295,7 +298,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
         self.tools = self.toolbar('Tools')
         self.actions.beginner = (
-            open, save, nextFile, None, create, copy, delete, None,
+            open, save, nextFile, prevFile, None, create, copy, delete, None,
             zoomIn, zoom, zoomOut, fitWindow, fitWidth)
 
         self.actions.advanced = (
@@ -776,7 +779,7 @@ class MainWindow(QMainWindow, WindowMixin):
         if filename:
             self.loadFile(filename)
 
-    def openNextFile(self, _value=False):
+    def openNextFile(self, _value=False, increment = 1):
         if not self.mayContinue():
             return
 
@@ -793,11 +796,16 @@ class MainWindow(QMainWindow, WindowMixin):
         all_files = [f for f in os.listdir(path) if 
                      os.path.isfile(os.path.join(path, f)) and 
                      os.path.splitext(f)[1] == ext]
+
+        # Check if there is a valid "next" file
+
         next_file_idx = -1
         if (all_files.count(fname) > 0):
             idx = all_files.index(fname)
-            if ((idx + 2) < len(all_files)) :
-                next_file_idx = idx + 1
+            
+            if (0 <= (idx + increment) < len(all_files)) :
+                next_file_idx = idx + increment
+
         if (next_file_idx < 0):
             return
         
