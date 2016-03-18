@@ -1,4 +1,4 @@
-#
+﻿#
 # Copyright (C) 2011 Michael Pitidis, Hussein Abdulwahid.
 #
 # This file is part of Labelme.
@@ -21,6 +21,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from lib import newIcon, labelValidator
+import copy
+
 
 # TODO:
 # - Calculate optimal position so as not to go out of screen area.
@@ -35,8 +37,25 @@ class LabelDialog(QDialog):
         self.edit.setText(text)
         self.edit.setValidator(labelValidator())
         self.edit.editingFinished.connect(self.postProcess)
+
+           
+
+        
+
+        # Add buttons with predefined-labels
+        label_layout = QHBoxLayout()
+        predefined_labels = ['car', 'suv', 'van', 'truck']
+        for label in predefined_labels:
+            button = QPushButton(label)
+            button.clicked.connect(lambda state, s = label : self.edit.setText(s))
+            label_layout.addWidget(button)
+
+
+
         layout = QVBoxLayout()
+        layout.addLayout(label_layout)
         layout.addWidget(self.edit)
+        
         self.buttonBox = bb = BB(BB.Ok | BB.Cancel, Qt.Horizontal, self)
         bb.button(BB.Ok).setIcon(newIcon('done'))
         bb.button(BB.Cancel).setIcon(newIcon('undo'))
