@@ -567,7 +567,7 @@ class MainWindow(QMainWindow, WindowMixin):
             lf.save(filename, shapes, unicode(self.filename), self.imageData,
                 self.lineColor.getRgb(), self.fillColor.getRgb())
             self.labelFile = lf
-            self.filename = filename
+            #self.filename = filename
             return True
         except LabelFileError, e:
             self.errorMessage(u'Error saving label data',
@@ -691,6 +691,9 @@ class MainWindow(QMainWindow, WindowMixin):
             self.paintCanvas()
             self.addRecentFile(self.filename)
             self.toggleActions(True)
+
+            # Set app name
+            self.setWindowTitle(__appname__ + " - " + filename)
             return True
         return False
 
@@ -795,7 +798,7 @@ class MainWindow(QMainWindow, WindowMixin):
     def saveFile(self, _value=False):
         assert not self.image.isNull(), "cannot save empty image"
         if self.hasLabels():
-            self._saveFile(self.filename if self.labelFile\
+            self._saveFile(self.labelFile.lastSavedPath if self.labelFile\
                                          else self.saveFileDialog())
 
     def saveFileAs(self, _value=False):

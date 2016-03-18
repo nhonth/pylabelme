@@ -1,4 +1,4 @@
-#
+﻿#
 # Copyright (C) 2011 Michael Pitidis, Hussein Abdulwahid.
 #
 # This file is part of Labelme.
@@ -32,6 +32,7 @@ class LabelFile(object):
         self.shapes = ()
         self.imagePath = None
         self.imageData = None
+        self.lastSavedPath = None
         if filename is not None:
             self.load(filename)
 
@@ -49,6 +50,7 @@ class LabelFile(object):
                 self.shapes = shapes
                 self.imagePath = imagePath
                 self.imageData = imageData
+                self.lastSavedPath = filename
                 self.lineColor = lineColor
                 self.fillColor = fillColor
         except Exception, e:
@@ -64,6 +66,7 @@ class LabelFile(object):
                     imagePath=imagePath,
                     imageData=b64encode(imageData)),
                     f, ensure_ascii=True, indent=2)
+            self.lastSavedPath = filename
         except Exception, e:
             raise LabelFileError(e)
 
